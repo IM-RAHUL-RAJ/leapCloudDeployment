@@ -24,9 +24,6 @@ spec:
           value: "admin"
         - name: SPRING_DATASOURCE_PASSWORD
           value: "LA2025fmr"
-        - name: FMTS_URL
-          # value: "http://fmts-nodejs:3000/fmts"
-          value: "<alb-fmts-endpoint"
       imagePullSecrets:
         - name: a######-secret
 ---

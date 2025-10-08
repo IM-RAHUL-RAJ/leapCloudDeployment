@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spring-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spring-app
+  template:
+    metadata:
+      labels:
+        app: spring-app
+    spec:
+      containers:
+      - name: spring-app
+        image: leapfse#.jfrog.io/fse#team#/a######-backend:<version>
+        ports:
+        - containerPort: 8080
+        env:
+        - name: SPRING_DATASOURCE_URL
+          value: "jdbc:oracle:thin:@<end-point>:1521/ORCL"
+        - name: SPRING_DATASOURCE_USERNAME
+          value: "admin"
+        - name: SPRING_DATASOURCE_PASSWORD
+          value: "LA2025fmr"
+        - name: FMTS_URL
+          # value: "http://fmts-nodejs:3000/fmts"
+          value: "<alb-fmts-endpoint"
+      imagePullSecrets:
+        - name: a######-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: spring-app
+spec:
+  type: ClusterIP
+  selector:
+    app: spring-app
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080

@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mid-nodejs
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mid-nodejs
+  template:
+    metadata:
+      labels:
+        app: mid-nodejs
+    spec:
+      containers:
+      - name: mid-nodejs
+        image: <leapfse#>.jfrog.io/<fse#team#>/a######-midtier:<version>
+        ports:
+        - containerPort: 4000
+      imagePullSecrets:
+        - name: jfrog-registry-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mid-nodejs
+spec:
+  type: ClusterIP
+  selector:
+    app: mid-nodejs
+  ports:
+    - protocol: TCP
+      port: 4000
+      targetPort: 4000

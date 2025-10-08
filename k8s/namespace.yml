@@ -1,0 +1,7 @@
+apiVersion:v1
+kind: Namespace
+metadata:
+  name: a######-leapCloud
+  labels:
+    environment: development
+    team: <team-name>

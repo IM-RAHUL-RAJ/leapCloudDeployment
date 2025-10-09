@@ -7,22 +7,24 @@ metadata:
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}]'
-    
-    # Uncomment below for HTTPS support (replace with your actual ACM certificate ARN)
+    # For HTTPS add below (replace ARN):
     # alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80},{"HTTPS":443}]'
     # alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:REGION:ACCOUNT:certificate/XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
-
 spec:
-  ingressClassName: alb  # Explicitly specify AWS Load Balancer Controller
+  ingressClassName: alb  # Explicit class for AWS Load Balancer Controller
   rules:
     - http:
         paths:
-          # FMTS Service - Direct              service:
+          # FMTS Service Routes - Direct frontend to FMTS communication
+          - path: /fmts
+            pathType: Prefix
+            backend:
+              service:
                 name: fmts-nodejs
                 port:
                   number: 3000
-
-          # Spring Backend Service - Direct frontend to backend communication
+          
+          # Backend/Spring Service Routes - Direct frontend to backend communication
           - path: /backend
             pathType: Prefix
             backend:
@@ -30,8 +32,8 @@ spec:
                 name: spring-app
                 port:
                   number: 8080
-
-          # Midtier Service - Frontend to midtier communication
+          
+          # Midtier Service Routes - Frontend to midtier communication (most common)
           - path: /api
             pathType: Prefix
             backend:
@@ -39,8 +41,8 @@ spec:
                 name: mid-nodejs
                 port:
                   number: 3001
-
-          # Alternative Midtier Route - For students using /mid prefix
+          
+          # Alternative midtier route for students who might use /mid prefix
           - path: /mid
             pathType: Prefix
             backend:
@@ -48,8 +50,8 @@ spec:
                 name: mid-nodejs
                 port:
                   number: 3001
-
-          # Angular Frontend - Default route (should be last due to greedy matching)
+          
+          # Frontend (Angular) - Default route (must be last due to greedy matching)
           - path: /
             pathType: Prefix
             backend:

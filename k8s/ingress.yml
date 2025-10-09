@@ -1,0 +1,59 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: trade-marshals-ingress
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}]'
+    
+    # Uncomment below for HTTPS support (replace with your actual ACM certificate ARN)
+    # alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80},{"HTTPS":443}]'
+    # alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:REGION:ACCOUNT:certificate/XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
+
+spec:
+  ingressClassName: alb  # Explicitly specify AWS Load Balancer Controller
+  rules:
+    - http:
+        paths:
+          # FMTS Service - Direct              service:
+                name: fmts-nodejs
+                port:
+                  number: 3000
+
+          # Spring Backend Service - Direct frontend to backend communication
+          - path: /backend
+            pathType: Prefix
+            backend:
+              service:
+                name: spring-app
+                port:
+                  number: 8080
+
+          # Midtier Service - Frontend to midtier communication
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: mid-nodejs
+                port:
+                  number: 3001
+
+          # Alternative Midtier Route - For students using /mid prefix
+          - path: /mid
+            pathType: Prefix
+            backend:
+              service:
+                name: mid-nodejs
+                port:
+                  number: 3001
+
+          # Angular Frontend - Default route (should be last due to greedy matching)
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: angular-app
+                port:
+                  number: 80
